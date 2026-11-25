@@ -51,14 +51,14 @@ static void draw_game(RenderTexture2D arena)
 int main(void)
 {
     Tilemap map = tilemap_from_text(MAP_WIDE.text);
-    if (map.w == 0) {
+    if (map.width == 0) {
         return 1;
     }
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "BomberC");
 
-    RenderTexture2D arena = LoadRenderTexture(grid_cell_to_px(map.w), grid_cell_to_px(map.h));
+    RenderTexture2D arena = LoadRenderTexture(grid_cell_to_px(map.width), grid_cell_to_px(map.height));
 
     while (!WindowShouldClose()) {
         BeginTextureMode(arena);

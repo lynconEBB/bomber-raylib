@@ -16,7 +16,7 @@ static int spawn_index(char c)
 
 Tilemap tilemap_from_text(const char *text)
 {
-    Tilemap m = {0};
+    Tilemap tilemap = {0};
     if (text == NULL) {
         text = "";
     }
@@ -24,29 +24,22 @@ Tilemap tilemap_from_text(const char *text)
     bool spawn_seen[TILEMAP_MAX_SPAWNS] = {0};
     int x = 0;
     int y = 0;
-    int w = 0;
+    int width = 0;
 
-    for (const char *c = text;; c++) {
-        bool end_of_text = (*c == '\0');
-
-        if (*c == '\n' || end_of_text) {
-            if (x > 0) {
-                if (y == 0) {
-                    w = x;
-                } else if (x != w) {
-                    fprintf(stderr, "tilemap: line %d has %d columns, expected %d\n", y + 1, x, w);
-                    return (Tilemap){0};
-                }
-                y++;
-                x = 0;
-            } else if (!end_of_text) {
+    for (const char *c = text; *c != '\0'; c++) {
+        if (*c == '\n') {
+            if (x == 0) {
                 fprintf(stderr, "tilemap: line %d is empty\n", y + 1);
                 return (Tilemap){0};
             }
-
-            if (end_of_text) {
-                break;
+            if (y == 0) {
+                width = x;
+            } else if (x != width) {
+                fprintf(stderr, "tilemap: line %d has %d columns, expected %d\n", y + 1, x, width);
+                return (Tilemap){0};
             }
+            y++;
+            x = 0;
             continue;
         }
 
@@ -61,58 +54,62 @@ Tilemap tilemap_from_text(const char *text)
         case '#': tile = TILE_HARD; break;
         case '+': tile = TILE_SOFT; break;
         default: {
-            int i = spawn_index(*c);
-            if (i < 0) {
+            int spawn = spawn_index(*c);
+            if (spawn < 0) {
                 fprintf(stderr, "tilemap: unknown character '%c' (line %d, column %d)\n", *c, y + 1, x + 1);
                 return (Tilemap){0};
             }
-            if (spawn_seen[i]) {
+            if (spawn_seen[spawn]) {
                 fprintf(stderr, "tilemap: duplicate spawn %c (line %d, column %d)\n", *c, y + 1, x + 1);
                 return (Tilemap){0};
             }
-            spawn_seen[i] = true;
-            m.spawns[i] = (GridPos){ (int16_t)x, (int16_t)y };
+            spawn_seen[spawn] = true;
+            tilemap.spawns[spawn] = (GridPos){ (int16_t)x, (int16_t)y };
             tile = TILE_FLOOR;
         } break;
         }
 
-        m.tiles[y][x] = tile;
+        tilemap.tiles[y][x] = tile;
         x++;
     }
 
+    if (x != 0) {
+        fprintf(stderr, "tilemap: line %d does not end with a newline\n", y + 1);
+        return (Tilemap){0};
+    }
     if (y == 0) {
         fprintf(stderr, "tilemap: empty map\n");
         return (Tilemap){0};
     }
 
-    int count = 0;
-    while (count < TILEMAP_MAX_SPAWNS && spawn_seen[count]) {
-        count++;
+    int spawn_count = 0;
+    while (spawn_count < TILEMAP_MAX_SPAWNS && spawn_seen[spawn_count]) {
+        spawn_count++;
     }
-    for (int i = count; i < TILEMAP_MAX_SPAWNS; i++) {
-        if (spawn_seen[i]) {
-            fprintf(stderr, "tilemap: spawn %d exists but spawn %d is missing\n", i + 1, count + 1);
+    for (int spawn = spawn_count; spawn < TILEMAP_MAX_SPAWNS; spawn++) {
+        if (spawn_seen[spawn]) {
+            fprintf(stderr, "tilemap: spawn %d exists but spawn %d is missing\n", spawn + 1, spawn_count + 1);
             return (Tilemap){0};
         }
     }
 
-    m.w = (int16_t)w;
-    m.h = (int16_t)y;
-    m.spawn_count = (int16_t)count;
-    return m;
+    tilemap.width = (int16_t)width;
+    tilemap.height = (int16_t)y;
+    tilemap.spawn_count = (int16_t)spawn_count;
+    return tilemap;
 }
 
-bool tilemap_in_bounds(const Tilemap *m, GridPos p)
+bool tilemap_in_bounds(const Tilemap *tilemap, GridPos pos)
 {
-    return p.x >= 0 && p.y >= 0 && p.x < m->w && p.y < m->h;
+    return pos.x >= 0 && pos.y >= 0 && pos.x < tilemap->width && pos.y < tilemap->height;
 }
 
-TileType tilemap_get(const Tilemap *m, GridPos p)
+TileType tilemap_get(const Tilemap *tilemap, GridPos pos)
 {
-    if (!tilemap_in_bounds(m, p)) {
+    if (!tilemap_in_bounds(tilemap, pos)) {
         return TILE_HARD;
     }
-    return m->tiles[p.y][p.x];
+    return tilemap->tiles[pos.y][pos.x];
 }
 
 static const Color TILE_COLOR[TILE_MAX] = {
@@ -121,11 +118,11 @@ static const Color TILE_COLOR[TILE_MAX] = {
     [TILE_SOFT]  = { 176, 176, 168, 255 },
 };
 
-void tilemap_draw(const Tilemap *m)
+void tilemap_draw(const Tilemap *tilemap)
 {
-    for (int16_t y = 0; y < m->h; y++) {
-        for (int16_t x = 0; x < m->w; x++) {
-            TileType tile = m->tiles[y][x];
+    for (int16_t y = 0; y < tilemap->height; y++) {
+        for (int16_t x = 0; x < tilemap->width; x++) {
+            TileType tile = tilemap->tiles[y][x];
             int px = grid_cell_to_px(x);
             int py = grid_cell_to_px(y);
             Color color = TILE_COLOR[tile];
@@ -138,11 +135,11 @@ void tilemap_draw(const Tilemap *m)
     }
 
     if (DEBUG_DRAW_SPAWNS) {
-        for (int i = 0; i < m->spawn_count; i++) {
-            GridPos p = m->spawns[i];
-            int px = grid_cell_to_px(p.x);
-            int py = grid_cell_to_px(p.y);
-            DrawText(TextFormat("%d", i + 1), px + 5, py + 3, 10, WHITE);
+        for (int spawn = 0; spawn < tilemap->spawn_count; spawn++) {
+            GridPos spawn_pos = tilemap->spawns[spawn];
+            int px = grid_cell_to_px(spawn_pos.x);
+            int py = grid_cell_to_px(spawn_pos.y);
+            DrawText(TextFormat("%d", spawn + 1), px + 5, py + 3, 10, WHITE);
         }
     }
 }

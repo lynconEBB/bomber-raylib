@@ -15,7 +15,7 @@ typedef enum : uint8_t {
 } TileType;
 
 typedef struct {
-    int16_t w, h;
+    int16_t width, height;
     TileType tiles[GRID_MAX_H][GRID_MAX_W];
     int16_t spawn_count;
     GridPos spawns[TILEMAP_MAX_SPAWNS];
@@ -24,9 +24,9 @@ typedef struct {
 // Returns a zeroed (empty) Tilemap on error.
 Tilemap tilemap_from_text(const char *text);
 
-bool tilemap_in_bounds(const Tilemap *m, GridPos p);
+bool tilemap_in_bounds(const Tilemap *tilemap, GridPos pos);
 
 // Out of bounds returns TILE_HARD.
-TileType tilemap_get(const Tilemap *m, GridPos p);
+TileType tilemap_get(const Tilemap *tilemap, GridPos pos);
 
-void tilemap_draw(const Tilemap *m);
+void tilemap_draw(const Tilemap *tilemap);

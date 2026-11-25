@@ -20,9 +20,11 @@ This is a learning project: the goal is to learn low-level game development and 
 - **ZII (Zero Is Initialization)**: the all-zero value of every struct is valid and means "empty/default".
   Enum value 0 is the default/none case. Functions behave correctly when given zeroed input.
   Builder functions return structs by value and return a zeroed struct on error (e.g. `tilemap_from_text`).
-- Modules: one `.h` (types + prototypes) and one `.c`, functions named `module_verb(Struct *s, ...)`,
+- Modules: one `.h` (types + prototypes) and one `.c`, functions named `module_verb(Module *module, ...)`,
   private helpers `static`. Each module owns its drawing (`tilemap_draw`); there is no central render module.
 - Debug toggles are `#define` flags checked with a plain `if (FLAG)`, not `#if`.
+- Descriptive names for variables, parameters and struct fields (`tilemap`, `pos`, `width`). Single letters only for
+  `x`/`y` coordinates and a character iterator (`c`).
 - Everything in the code is in English. Comments only for complex or non-intuitive code.
 
 ## What exists
