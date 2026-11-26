@@ -112,6 +112,11 @@ TileType tilemap_get(const Tilemap *tilemap, GridPos pos)
     return tilemap->tiles[pos.y][pos.x];
 }
 
+bool tilemap_is_solid(const Tilemap *tilemap, GridPos pos)
+{
+    return tilemap_get(tilemap, pos) != TILE_FLOOR;
+}
+
 static const Color TILE_COLOR[TILE_MAX] = {
     [TILE_FLOOR] = {  56, 152,  56, 255 },
     [TILE_HARD]  = {  88,  88, 100, 255 },

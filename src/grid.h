@@ -12,4 +12,5 @@ typedef struct {
 } GridPos;
 
 int32_t grid_cell_to_px(int16_t cell);
+int32_t grid_cell_center_px(int16_t cell);
 int16_t grid_px_to_cell(int32_t px);

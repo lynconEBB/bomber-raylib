@@ -16,5 +16,9 @@ add_executable(bomber
     src/grid.c
     src/tilemap.c
     src/maps.c
+    src/input.c
+    src/entity.c
+    src/movement.c
+    src/game.c
 )
 target_link_libraries(bomber PRIVATE raylib)

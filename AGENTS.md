@@ -1,8 +1,9 @@
 # BomberC
 
 Bomberman-style game, **battle (arena) mode only**, written in **C23 + raylib** for **Linux and Windows**.
-Mechanics (movement, timers, items, mounts) must match *Super Bomberman 4* (SFC), obtained through
-reverse engineering. Art, sound and name are our own: we only take numbers from the ROM.
+*Super Bomberman 4* (SFC) is the **inspiration**, not a 1:1 target: we reverse engineer its mechanics (movement, timers,
+items, mounts) deeply to understand them, then keep, adapt or improve them for our game. Art, sound and name are our own;
+from the ROM we only take numbers and rules.
 
 This is a learning project: the goal is to learn low-level game development and move away from object-oriented thinking.
 
@@ -30,9 +31,12 @@ This is a learning project: the goal is to learn low-level game development and 
 ## What exists
 
 - `src/`: `grid` (cell coordinates), `tilemap` (terrain, text parser, drawing),
-  `maps` (arenas as text: `MAP_CLASSIC` 15×13 for 2–5 players, `MAP_WIDE` 23×13 for 6–8),
-  `main.c` (window, loop; the game screen is always 16:9: the largest 16:9 rectangle that fits in the window
-  is filled with the panel color, the arena render texture is fitted inside it, and anything outside is black).
+  `maps` (arenas as text: `MAP_CLASSIC` 15×13 for 2–5 players, `MAP_WIDE` 23×13 for 6–8, `MAP_PLAYGROUND` for testing),
+  `input` (keyboard → button bitmask, latched between ticks), `entity` (the fat struct `Entity` and its drawing),
+  `movement` (pixel-step movement with corner help, see `docs/re/movement.md`), `game` (the whole simulation state),
+  `main.c` (window; fixed 60 Hz simulation with unlocked rendering; the game screen is always 16:9: the largest
+  16:9 rectangle that fits in the window is filled with the panel color, the arena render texture is fitted inside it,
+  and anything outside is black).
 - `CMakeLists.txt`: raylib 6.2 via FetchContent, Ninja Multi-Config generator.
   Build: `cmake --build build --config Debug` → `build/Debug/bomber`.
 - `docs/roadmap.md`: stage checklist.

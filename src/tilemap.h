@@ -29,4 +29,7 @@ bool tilemap_in_bounds(const Tilemap *tilemap, GridPos pos);
 // Out of bounds returns TILE_HARD.
 TileType tilemap_get(const Tilemap *tilemap, GridPos pos);
 
+// Hard and soft blocks; out of bounds is solid.
+bool tilemap_is_solid(const Tilemap *tilemap, GridPos pos);
+
 void tilemap_draw(const Tilemap *tilemap);
