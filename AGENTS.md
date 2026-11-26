@@ -33,7 +33,7 @@ This is a learning project: the goal is to learn low-level game development and 
 - `src/`: `grid` (cell coordinates), `tilemap` (terrain, text parser, drawing),
   `maps` (arenas as text: `MAP_CLASSIC` 15×13 for 2–5 players, `MAP_WIDE` 23×13 for 6–8, `MAP_PLAYGROUND` for testing),
   `input` (keyboard → button bitmask, latched between ticks), `entity` (the fat struct `Entity` and its drawing),
-  `movement` (pixel-step movement with corner help, see `docs/re/movement.md`), `game` (the whole simulation state),
+  `movement` (pixel-step movement with corner help, see `docs/re/movement.md`), `scene` (the whole simulation state of a screen, tagged by `SceneType`),
   `main.c` (window; fixed 60 Hz simulation with unlocked rendering; the game screen is always 16:9: the largest
   16:9 rectangle that fits in the window is filled with the panel color, the arena render texture is fitted inside it,
   and anything outside is black).

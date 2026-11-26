@@ -19,6 +19,6 @@ add_executable(bomber
     src/input.c
     src/entity.c
     src/movement.c
-    src/game.c
+    src/scene.c
 )
 target_link_libraries(bomber PRIVATE raylib)
